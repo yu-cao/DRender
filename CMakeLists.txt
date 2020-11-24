@@ -11,7 +11,8 @@ include_directories(${GLFW_H} ${GLM_H})
 
 # 添加目标链接
 set(GLFW_LINK /usr/local/Cellar/glfw/3.3.2/lib/libglfw.3.3.dylib)
-link_libraries(${OPENGL} ${GLFW_LINK})
+set(SOIL /Users/debyecao/GitHub/DRender/util/SOIL/libSOIL.a)
+link_libraries(${OPENGL} ${GLFW_LINK} ${SOIL})
 
 set(SOURCE_FILES
         src/main.cpp
@@ -26,4 +27,5 @@ add_executable(DRender ${SOURCE_FILES})
 
 if (APPLE)
     target_link_libraries(DRender "-framework OpenGL")
+    target_link_libraries(DRender "-framework Cocoa")
 endif()
