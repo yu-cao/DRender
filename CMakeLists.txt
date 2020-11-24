@@ -22,7 +22,7 @@ set(SOURCE_FILES
         src/ShaderUtils.cpp
         src/TechDemo.cpp
         util/glad/glad.c
-        util/Random/Random.cpp util/Random/Random.h src/Logger.cpp include/Logger.h)
+        util/Random/Random.cpp util/Random/Random.h src/Logger.cpp include/Logger.h src/Colors.cpp include/Colors.h src/Primitives.cpp)
 add_executable(DRender ${SOURCE_FILES})
 
 if (APPLE)

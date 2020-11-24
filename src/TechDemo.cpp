@@ -13,6 +13,7 @@
 #include <glm/glm.hpp> // vec3, vec3, mat4
 #include <glm/gtc/matrix_transform.hpp> // translate, rotation, scale, perspective
 #include <glm/gtc/type_ptr.hpp> // value_ptr
+#include <glm/gtx/euler_angles.hpp> // rotation
 
 #include "../util/SOIL/SOIL.h"
 
@@ -33,34 +34,27 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	}
 }
 
-// TODO: Consolidate these two functions?
-mat4 Transform(const vec2& Orientation, const vec3& Position, const vec3& Up)
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	mat4 Proj = perspective(radians(45.f), 1.33f, 0.1f, 10.f);
-	mat4 ViewTranslate = translate(mat4(1.f), Position);
-	mat4 ViewRotateX = rotate(ViewTranslate, Orientation.y, Up);
-	mat4 View = rotate(ViewRotateX, Orientation.x, Up);
-	mat4 Model = mat4(1.0f);
 
-	return Proj * View * Model;
 }
 
-void SetUniformMVP(GLuint Location, const vec3& Position, const vec3& Rotation)
+void WindowFocusCallback(GLFWwindow* window, int focused)
 {
-	float FOV = 45.0f;
-	float aspect = 16.0f / 9.0f;
-	float zNear = 0.1f;
-	float zFar = 100.0f;
-	mat4 Projection = perspective(FOV, aspect, zNear, zFar);
+	TechDemo* techDemo = static_cast<TechDemo*>(glfwGetWindowUserPointer(window));
+	techDemo->UpdateWindowFocused(focused);
+}
 
-	float Scale = 0.5f;
+void CursorPosCallback(GLFWwindow* window, double x, double y)
+{
+	TechDemo* techDemo = static_cast<TechDemo*>(glfwGetWindowUserPointer(window));
+	techDemo->SetMousePosition((float)x, (float)y);
+}
 
-	mat4 ViewTranslate = translate(mat4(1.0f), Position);
-	mat4 ViewRotateX = rotate(ViewTranslate, Rotation.y, vec3(-1.0f, 0.0f, 0.0f));
-	mat4 View = rotate(ViewRotateX, Rotation.x, vec3(0.0f, 1.0f, 0.0f));
-	mat4 Model = scale(mat4(1.0f), vec3(Scale));
-	mat4 MVP = Projection * View * Model;
-	glUniformMatrix4fv(Location, 1, GL_FALSE, value_ptr(MVP));
+void WindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+	TechDemo* techDemo = static_cast<TechDemo*>(glfwGetWindowUserPointer(window));
+	techDemo->UpdateWindowSize(width, height);
 }
 
 vec3 ComputeNormal(const vec3& a, const vec3& b, const vec3& c)
@@ -78,10 +72,6 @@ TechDemo::~TechDemo()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &m_VertexBufferID);
-	glDeleteVertexArrays(1, &m_VertexArrayID);
-	glDeleteBuffers(1, &m_ColorBufferID);
-	glDeleteBuffers(1, &m_TexCoordBufferID);
 	glBindVertexArray(0);
 
 	glfwDestroyWindow(m_Window);
@@ -117,30 +107,6 @@ void LoadAndBindGLTexture(const std::string filename, GLuint& textureHandle,
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 }
-
-// NOTE: This uses SOIL's automatic texture creation - which is outdated apparently
-//GLuint LoadGLTexture(const std::string filename, bool repeats, bool generateMipmaps)
-//{
-//	GLuint loadFlags = 0;
-//	if (generateMipmaps)
-//	{
-//		loadFlags |= SOIL_FLAG_MIPMAPS;
-//	}
-//	if (repeats)
-//	{
-//		loadFlags |= SOIL_FLAG_TEXTURE_REPEATS;
-//	}
-//	GLuint result = SOIL_load_OGL_texture(filename.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, loadFlags);
-//
-//	if (result == 0)
-//	{
-//		std::cout << "SOIL loading error: " << SOIL_last_result() << std::endl;
-//		std::cout << "image filepath: " << filename << std::endl;
-//		return result;
-//	}
-//
-//	return result;
-//}
 
 GLFWimage LoadGLFWImage(const std::string filename)
 {
@@ -181,14 +147,28 @@ void TechDemo::Initialize()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-	m_Window = glfwCreateWindow(1920, 1080, "Window title", NULL, NULL);
+	m_WindowSize = vec2(1920, 1080);
+	m_ZNear = 0.1f;
+	m_ZFar = 1000.0f;
+	m_FOV = 45.0f;
+
+	m_Window = glfwCreateWindow(m_WindowSize.x, m_WindowSize.y, "Window Title", NULL, NULL);
 	if (!m_Window)
 	{
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
 
+	glfwSetWindowUserPointer(m_Window, this);
+
 	glfwSetKeyCallback(m_Window, KeyCallback);
+	glfwSetMouseButtonCallback(m_Window, MouseButtonCallback);
+	glfwSetCursorPosCallback(m_Window, CursorPosCallback);
+	glfwSetWindowSizeCallback(m_Window, WindowSizeCallback);
+	glfwSetWindowFocusCallback(m_Window, WindowFocusCallback);
+
+	glfwFocusWindow(m_Window);
+	m_WindowFocused = true;
 
 	glfwMakeContextCurrent(m_Window);
 
@@ -202,73 +182,18 @@ void TechDemo::Initialize()
 
 	glfwSetWindowIcon(m_Window, NUM_ICONS, icons);
 
-	glClearColor(0.05f, 0.1f, 0.45f, 0.0f);
+	glClearColor(0.05f, 0.1f, 0.25f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-
-	static const GLfloat vertices[] = {
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f,  -1.0f, -1.0f,
-	};
-
-//	static GLfloat colors[12 * 3 * 3];
-//	for (size_t i = 0; i < 12 * 3; i++)
-//	{
-//		colors[i * 3 + 0] = 1.0f;
-//		colors[i * 3 + 1] = 1.0f;
-//		colors[i * 3 + 2] = 1.0f;
-//	}
-
-	static const GLfloat texCoords[] =
-		{
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			0.0f, 1.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f
-		};
 
 	m_ProgramID = ShaderUtils::LoadShaders("../resources/shaders/simple.vert", "../resources/shaders/simple.frag");
 
 	glUseProgram(m_ProgramID);
 
-	// Vertex buffer object
-	glGenVertexArrays(1, &m_VertexArrayID);
-	glBindVertexArray(m_VertexArrayID);
-
-	glGenBuffers(1, &m_VertexBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	GLint posAttrib = glGetAttribLocation(m_ProgramID, "in_Position");
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(posAttrib);
-
-//	glGenBuffers(1, &m_ColorBufferID);
-//	glBindBuffer(GL_ARRAY_BUFFER, m_ColorBufferID);
-//	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-//	GLint colorAttrib = glGetAttribLocation(m_ProgramID, "in_Color");
-//	glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-//	glEnableVertexAttribArray(colorAttrib);
-
-	glGenBuffers(1, &m_TexCoordBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, m_TexCoordBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-	GLint texCoordAttrib = glGetAttribLocation(m_ProgramID, "in_TexCoord");
-	glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(texCoordAttrib);
-
-	LoadAndBindGLTexture("../resources/images/test2.jpg", m_TextureID);
-	glUniform1i(glGetUniformLocation(m_ProgramID, "texTest"), 0);
-
-	m_UniformTimeID = glGetUniformLocation(m_ProgramID, "time");
-
-	m_MVPID = glGetUniformLocation(m_ProgramID, "MVP");
+	m_Cube.Init(m_ProgramID, vec3(0.0f, 0.0f, 0.0f), glm::quat(vec3(0.0f, 1.0f, 0.0f)), vec3(3.0f, 1.0f, 1.0f));
+	m_Cube2.Init(m_ProgramID, vec3(0.0f, 0.0f, 4.0f), glm::quat(vec3(0.0f, 0.0f, 2.0f)), vec3(1.0f, 5.0f, 1.0f));
+	//m_Sphere1.Init(m_ProgramID, Sphere::Type::STANDARD, 2.0f, 20, 20, vec3(0.0f, 8.0f, 0.0f));
 
 	SetVSyncEnabled(true);
 }
@@ -298,26 +223,14 @@ void TechDemo::UpdateAndRender()
 
 		glUseProgram(m_ProgramID);
 
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
+		CalculateViewProjection(dt);
 
-		float FOV = 45.0f;
-		float aspectRatio = viewport[0] / float(viewport[1]);
-		glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+		m_Cube.Draw(m_ProgramID, m_ViewProjection, currentTime);
+		m_Cube2.Draw(m_ProgramID, m_ViewProjection, currentTime);
+		//m_Sphere1.Draw(m_ProgramID, m_ViewProjection, currentTime);
 
-		glm::mat4 View = glm::lookAt(
-			glm::vec3(-5, -5, 10),
-			glm::vec3(0, 0, 0),
-			glm::vec3(0, 1, 0)
-		);
-
-		glm::mat4 Model = glm::mat4(1.0f);
-		glm::mat4 MVP = Projection * View * Model;
-		glUniformMatrix4fv(m_MVPID, 1, GL_FALSE, &MVP[0][0]);
-
-		glUniform1f(m_UniformTimeID, currentTime);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glUseProgram(0);
 
 		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
@@ -333,4 +246,56 @@ void TechDemo::SetVSyncEnabled(bool enabled)
 void TechDemo::ToggleVSyncEnabled()
 {
 	SetVSyncEnabled(!m_VSyncEnabled);
+}
+
+glm::mat4 TechDemo::GetViewProjection() const
+{
+	return m_ViewProjection;
+}
+
+void TechDemo::SetMousePosition(float x, float y)
+{
+	SetMousePosition(vec2(x, y));
+}
+
+void TechDemo::SetMousePosition(glm::vec2 mousePos)
+{
+	m_MousePos = mousePos;
+}
+
+void TechDemo::UpdateWindowSize(int width, int height)
+{
+	UpdateWindowSize(vec2(width, height));
+}
+
+void TechDemo::UpdateWindowSize(glm::tvec2<int> windowSize)
+{
+	m_WindowSize = windowSize;
+	glViewport(0, 0, windowSize.x, windowSize.y);
+}
+
+void TechDemo::UpdateWindowFocused(int focused)
+{
+	m_WindowFocused = focused == GLFW_TRUE;
+}
+
+void TechDemo::CalculateViewProjection(float dt)
+{
+	static float currentTime = 0.0f;
+
+	float aspectRatio = m_WindowSize.x / (float)m_WindowSize.y;
+	glm::mat4 Projection = glm::perspective(m_FOV, aspectRatio, m_ZNear, m_ZFar);
+
+	bool move = m_WindowFocused;
+	if (move) currentTime += dt;
+
+	vec3 eye = glm::vec3(8 + (cos(currentTime) * 4.0f), 3.5f, sin(currentTime) * 3.0f);
+
+	vec3 center = glm::vec3(0, 0, 0);
+	vec3 up = glm::vec3(0, 1, 0);
+
+	glm::mat4 View = glm::lookAt(
+		eye, center, up
+	);
+	m_ViewProjection = Projection * View;
 }
