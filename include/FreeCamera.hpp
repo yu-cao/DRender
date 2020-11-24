@@ -29,11 +29,8 @@ public:
 	void SetRotationSpeed(float rotationSpeed);
 
 	void Translate(glm::vec3 translation);
-	void RotateEuler(glm::vec3 rotationEuler);
-	void Rotate(glm::quat rotation);
 
 	void SetPosition(glm::vec3 position);
-	void SetOrientation(glm::quat orientation);
 
 	void ResetPosition();
 	void ResetOrientation();
@@ -47,10 +44,17 @@ private:
 	float m_ZFar;
 
 	glm::vec3 m_Position;
-	glm::quat m_Orientation;
+
+	float m_Yaw;
+	float m_Pitch;
+	glm::vec3 m_Forward;
+	glm::vec3 m_Up;
+	glm::vec3 m_Right;
+
 	glm::vec3 m_ClearColor;
 
 	float m_MoveSpeed;
+	float m_MoveSpeedMultiplier;
 	float m_RotationSpeed;
 };
 

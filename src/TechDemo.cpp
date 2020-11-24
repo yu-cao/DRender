@@ -210,6 +210,8 @@ void TechDemo::UpdateAndRender()
 	float prevTime = (float)glfwGetTime();
 	while (!glfwWindowShouldClose(m_Window))
 	{
+		glfwPollEvents();
+
 		float currentTime = (float)glfwGetTime();
 		float dt = currentTime - prevTime;
 		prevTime = currentTime;
@@ -242,8 +244,9 @@ void TechDemo::UpdateAndRender()
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glUseProgram(0);
 
+		m_InputManager->PostUpdate();
+
 		glfwSwapBuffers(m_Window);
-		glfwPollEvents();
 	}
 }
 
