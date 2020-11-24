@@ -2,8 +2,8 @@
 // Created by debyecao on 11/24/20.
 //
 
-#ifndef DRENDER_COLORS_H
-#define DRENDER_COLORS_H
+#ifndef DRENDER_COLORS_HPP
+#define DRENDER_COLORS_HPP
 
 struct Color
 {
@@ -24,4 +24,4 @@ struct Color
 	static const float DARK_GRAY[];
 };
 
-#endif//DRENDER_COLORS_H
+#endif//DRENDER_COLORS_HPP

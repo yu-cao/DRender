@@ -2,8 +2,8 @@
 // Created by debyecao on 11/24/20.
 //
 
-#ifndef DRENDER_SHADERUTILS_H
-#define DRENDER_SHADERUTILS_H
+#ifndef DRENDER_SHADERUTILS_HPP
+#define DRENDER_SHADERUTILS_HPP
 
 #include "../util/glad/glad.h"
 
@@ -29,4 +29,4 @@ private:
 
 };
 
-#endif//DRENDER_SHADERUTILS_H
+#endif//DRENDER_SHADERUTILS_HPP

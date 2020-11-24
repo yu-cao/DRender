@@ -2,8 +2,8 @@
 // Created by debyecao on 11/24/20.
 //
 
+#include "../include/Logger.hpp"
 #include <iostream>
-#include "../include/Logger.h"
 
 void Logger::Log(const std::string &message, LogLevel logLevel)
 {

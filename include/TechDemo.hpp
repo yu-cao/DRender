@@ -2,10 +2,11 @@
 // Created by debyecao on 11/24/20.
 //
 
-#ifndef DRENDER_TECHDEMO_H
-#define DRENDER_TECHDEMO_H
+#ifndef DRENDER_TECHDEMO_HPP
+#define DRENDER_TECHDEMO_HPP
 
-#include "Primitives.h"
+#include "Primitives.hpp"
+#include "GameContext.hpp"
 
 // Include glad *before* glfw
 #include "../util/glad/glad.h"
@@ -14,6 +15,8 @@
 #include "glm/vec2.hpp"
 
 struct GLFWwindow;
+class FreeCamera;
+class InputManager;
 
 class TechDemo final
 {
@@ -28,36 +31,27 @@ public:
 	void SetVSyncEnabled(bool enabled);
 	void ToggleVSyncEnabled();
 
-	glm::mat4 GetViewProjection() const;
+	glm::vec2 GetWindowSize() const;
 
 private:
 	// Callback accessors
-	void SetMousePosition(float x, float y);
-	void SetMousePosition(glm::vec2 mousePos);
 	void UpdateWindowSize(int width, int height);
 	void UpdateWindowSize(glm::tvec2<int> windowSize);
 	void UpdateWindowFocused(int focused);
 
-	void CalculateViewProjection(float dt);
-
 	GLFWwindow* m_Window;
 
 	glm::tvec2<int> m_WindowSize;
+	bool m_WindowFocused;
 
 	int m_FramesThisSecond;
 	int m_FPS;
 
 	bool m_VSyncEnabled;
 
-	bool m_WindowFocused;
-
-	// Camera variables
-	glm::mat4 m_ViewProjection;
-	float m_FOV;
-	float m_ZNear;
-	float m_ZFar;
-
-	glm::vec2 m_MousePos;
+	FreeCamera *m_Camera;
+	InputManager *m_InputManager;
+	GameContext m_GameContext;
 
 	GLuint m_ProgramID;
 
@@ -66,7 +60,7 @@ private:
 
 	CubePosCol m_Cube;
 	CubePosCol m_Cube2;
-	Sphere m_Sphere1;
+	SpherePosCol m_Sphere1;
 
 	static const int NUM_ICONS = 3;
 	GLFWimage icons[NUM_ICONS];
@@ -83,4 +77,4 @@ private:
 	TechDemo& operator=(const TechDemo&) = delete;
 };
 
-#endif//DRENDER_TECHDEMO_H
+#endif//DRENDER_TECHDEMO_HPP

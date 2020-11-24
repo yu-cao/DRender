@@ -2,8 +2,8 @@
 // Created by debyecao on 11/24/20.
 //
 
-#ifndef DRENDER_LOGGER_H
-#define DRENDER_LOGGER_H
+#ifndef DRENDER_LOGGER_HPP
+#define DRENDER_LOGGER_HPP
 
 #include <string>
 
@@ -26,4 +26,4 @@ private:
 
 };
 
-#endif//DRENDER_LOGGER_H
+#endif//DRENDER_LOGGER_HPP
