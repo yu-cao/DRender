@@ -2,9 +2,10 @@
 // Created by debyecao on 11/24/20.
 //
 
-#include "../include/Primitives.hpp"
-#include "../include/FreeCamera.hpp"
-#include "../include/GameContext.hpp"
+#include "Primitives.hpp"
+#include "FreeCamera.hpp"
+#include "GameContext.hpp"
+#include "Graphics/Renderer.hpp"
 
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,60 +18,65 @@ CubePosCol::CubePosCol()
 {
 }
 
-void CubePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+void CubePosCol::Init(const GameContext& gameContext, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	m_Position = position;
 	m_Rotation = rotation;
 	m_Scale = scale;
 
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
+	Renderer* renderer = gameContext.renderer;
+	renderer->GenVertexArrays(1, &m_VAO);
+	renderer->BindVertexArray(m_VAO);
 
-	glGenBuffers(1, &m_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(s_Vertices), s_Vertices, GL_STATIC_DRAW);
+	renderer->GenBuffers(1, &m_VBO);
+	renderer->BindBuffer(Renderer::BufferTarget::ARRAY_BUFFER, m_VBO);
+	renderer->BufferData(Renderer::BufferTarget::ARRAY_BUFFER, sizeof(s_Vertices), s_Vertices, Renderer::UsageFlag::STATIC_DRAW);
 
 	const int stride = VertexPosCol::stride;
 
-	GLint posAttrib = glGetAttribLocation(program, "in_Position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, stride, 0);
+	uint posAttrib = renderer->GetAttribLocation(gameContext.program, "in_Position");
+	renderer->EnableVertexAttribArray(posAttrib);
+	renderer->VertexAttribPointer(posAttrib, 3, Renderer::Type::FLOAT, false, stride, 0);
 
-	GLint colorAttrib = glGetAttribLocation(program, "in_Color");
-	glEnableVertexAttribArray(colorAttrib);
-	glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(VertexPosCol, col));
+	uint colorAttrib = renderer->GetAttribLocation(gameContext.program, "in_Color");
+	renderer->EnableVertexAttribArray(colorAttrib);
+	renderer->VertexAttribPointer(colorAttrib, 3, Renderer::Type::FLOAT, false, stride, (void*)offsetof(VertexPosCol, col));
 
-	m_UniformTimeID = glGetUniformLocation(program, "in_Time");
-	m_MVPID = glGetUniformLocation(program, "in_MVP");
+	m_UniformTimeID = renderer->GetUniformLocation(gameContext.program, "in_Time");
+	m_MVPID = renderer->GetUniformLocation(gameContext.program, "in_MVP");
 
-	glBindVertexArray(0);
+	renderer->BindVertexArray(0);
+}
+
+void CubePosCol::Destroy(const GameContext& gameContext)
+{
+	gameContext.renderer->DeleteVertexArrays(1, &m_VAO);
 }
 
 CubePosCol::~CubePosCol()
 {
-	glDeleteVertexArrays(1, &m_VAO);
 }
 
-void CubePosCol::Draw(GLuint program, const GameContext& gameContext, float currentTime)
+void CubePosCol::Render(const GameContext& gameContext)
 {
-	glBindVertexArray(m_VAO);
+	Renderer* renderer = gameContext.renderer;
 
-	glUniform1f(m_UniformTimeID, currentTime);
-
-	glUseProgram(program);
+	renderer->BindVertexArray(m_VAO);
+	renderer->SetUniform1f(m_UniformTimeID, gameContext.elapsedTime);
+	renderer->UseProgram(gameContext.program);
 
 	glm::mat4 Translation = glm::translate(glm::mat4(1.0f), m_Position);
 	glm::mat4 Rotation = glm::mat4(m_Rotation);
 	glm::mat4 Scale = glm::scale(glm::mat4(1.0f), m_Scale);
 	glm::mat4 Model = Translation * Rotation * Scale;
 	glm::mat4 MVP = gameContext.camera->GetViewProjection() * Model;
-	glUniformMatrix4fv(m_MVPID, 1, GL_FALSE, &MVP[0][0]);
+	renderer->SetUniformMatrix4fv(m_MVPID, 1, false, &MVP[0][0]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	renderer->BindBuffer(Renderer::BufferTarget::ARRAY_BUFFER, m_VBO);
 
-	glDrawArrays(GL_TRIANGLES, 0, NUM_VERTS);
+	renderer->DrawArrays(Renderer::Mode::TRIANGLES , 0, NUM_VERTS);
 
-	glBindVertexArray(0);
+	renderer->BindVertexArray(0);
 }
 
 const VertexPosCol CubePosCol::s_Vertices[] =
@@ -135,14 +141,14 @@ SpherePosCol::SpherePosCol()
 {
 }
 
-void SpherePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+void SpherePosCol::Init(const GameContext& gameContext, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	m_Position = position;
 	m_Rotation = rotation;
 	m_Scale = scale;
 
-	GLuint parallelCount = 30;
-	GLuint meridianCount = 30;
+	uint parallelCount = 30;
+	uint meridianCount = 30;
 
 	assert(parallelCount > 0 && meridianCount > 0);
 
@@ -153,12 +159,12 @@ void SpherePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, 
 	VertexPosCol v1 (0.0f, 1.0f, 0.0f, Color::BLACK);
 	m_Vertices.push_back(v1);
 
-	for (GLuint j = 0; j < parallelCount - 1; j++)
+	for (uint j = 0; j < parallelCount - 1; j++)
 	{
 		float polar = PI * float(j + 1) / (float)parallelCount;
 		float sinP = sin(polar);
 		float cosP = cos(polar);
-		for (GLuint i = 0; i < meridianCount; i++)
+		for (uint i = 0; i < meridianCount; i++)
 		{
 			float azimuth = TWO_PI * (float)i / (float)meridianCount;
 			float sinA = sin(azimuth);
@@ -181,8 +187,8 @@ void SpherePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, 
 	// Top triangles
 	for (size_t i = 0; i < meridianCount; i++)
 	{
-		GLuint a = i + 1;
-		GLuint b = (i + 1) % meridianCount + 1;
+		uint a = i + 1;
+		uint b = (i + 1) % meridianCount + 1;
 		m_Indices.push_back(0);
 		m_Indices.push_back(a);
 		m_Indices.push_back(b);
@@ -191,14 +197,14 @@ void SpherePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, 
 	// Center quads
 	for (size_t j = 0; j < parallelCount - 2; j++)
 	{
-		GLuint aStart = j * meridianCount + 1;
-		GLuint bStart = (j + 1) * meridianCount + 1;
+		uint aStart = j * meridianCount + 1;
+		uint bStart = (j + 1) * meridianCount + 1;
 		for (size_t i = 0; i < meridianCount; i++)
 		{
-			GLuint a = aStart + i;
-			GLuint a1 = aStart + (i + 1) % meridianCount;
-			GLuint b = bStart + i;
-			GLuint b1 = bStart + (i + 1) % meridianCount;
+			uint a = aStart + i;
+			uint a1 = aStart + (i + 1) % meridianCount;
+			uint b = bStart + i;
+			uint b1 = bStart + (i + 1) % meridianCount;
 			m_Indices.push_back(a);
 			m_Indices.push_back(a1);
 			m_Indices.push_back(b1);
@@ -212,8 +218,8 @@ void SpherePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, 
 	// Bottom triangles
 	for (size_t i = 0; i < meridianCount; i++)
 	{
-		GLuint a = i + meridianCount * (parallelCount - 2) + 1;
-		GLuint b = (i + 1) % meridianCount + meridianCount * (parallelCount - 2) + 1;
+		uint a = i + meridianCount * (parallelCount - 2) + 1;
+		uint b = (i + 1) % meridianCount + meridianCount * (parallelCount - 2) + 1;
 		m_Indices.push_back(m_NumVerts - 1);
 		m_Indices.push_back(a);
 		m_Indices.push_back(b);
@@ -221,57 +227,63 @@ void SpherePosCol::Init(GLuint program, glm::vec3 position, glm::quat rotation, 
 
 	m_NumIndices = m_Indices.size();
 
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
+	Renderer* renderer = gameContext.renderer;
 
-	glGenBuffers(1, &m_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(m_Vertices[0]) * m_Vertices.size(), m_Vertices.data(), GL_STATIC_DRAW);
+	renderer->GenVertexArrays(1, &m_VAO);
+	renderer->BindVertexArray(m_VAO);
 
-	glGenBuffers(1, &m_IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_Indices[0]) * m_Indices.size(), m_Indices.data(), GL_STATIC_DRAW);
+	renderer->GenBuffers(1, &m_VBO);
+	renderer->BindBuffer(Renderer::BufferTarget::ARRAY_BUFFER, m_VBO);
+	renderer->BufferData(Renderer::BufferTarget::ARRAY_BUFFER, sizeof(m_Vertices[0]) * m_Vertices.size(), m_Vertices.data(), Renderer::UsageFlag::STATIC_DRAW);
+
+	renderer->GenBuffers(1, &m_IBO);
+	renderer->BindBuffer(Renderer::BufferTarget::ELEMENT_ARRAY_BUFFER, m_IBO);
+	renderer->BufferData(Renderer::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(m_Indices[0]) * m_Indices.size(), m_Indices.data(), Renderer::UsageFlag::STATIC_DRAW);
 
 	const int stride = VertexPosCol::stride;
 
-	GLint posAttrib = glGetAttribLocation(program, "in_Position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, stride, 0);
+	uint posAttrib = renderer->GetAttribLocation(gameContext.program, "in_Position");
+	renderer->EnableVertexAttribArray(posAttrib);
+	renderer->VertexAttribPointer(posAttrib, 3, Renderer::Type::FLOAT, false, stride, 0);
 
-	GLint colorAttrib = glGetAttribLocation(program, "in_Color");
-	glEnableVertexAttribArray(colorAttrib);
-	glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(VertexPosCol, col));
+	uint colorAttrib = renderer->GetAttribLocation(gameContext.program, "in_Color");
+	renderer->EnableVertexAttribArray(colorAttrib);
+	renderer->VertexAttribPointer(colorAttrib, 3, Renderer::Type::FLOAT, false, stride, (void*)offsetof(VertexPosCol, col));
 
-	m_UniformTimeID = glGetUniformLocation(program, "in_Time");
-	m_MVPID = glGetUniformLocation(program, "in_MVP");
+	m_UniformTimeID = renderer->GetUniformLocation(gameContext.program, "in_Time");
+	m_MVPID = renderer->GetUniformLocation(gameContext.program, "in_MVP");
 
-	glBindVertexArray(0);
+	renderer->BindVertexArray(0);
+}
+
+void SpherePosCol::Destroy(const GameContext & gameContext)
+{
+	gameContext.renderer->DeleteVertexArrays(1, &m_VAO);
 }
 
 SpherePosCol::~SpherePosCol()
 {
-	glDeleteVertexArrays(1, &m_VAO);
 }
 
-void SpherePosCol::Draw(GLuint program, const GameContext& gameContext, float currentTime)
+void SpherePosCol::Render(const GameContext& gameContext)
 {
-	glBindVertexArray(m_VAO);
+	Renderer* renderer = gameContext.renderer;
 
-	glUniform1f(m_UniformTimeID, currentTime);
-
-	glUseProgram(program);
+	renderer->BindVertexArray(m_VAO);
+	renderer->UseProgram(gameContext.program);
+	renderer->SetUniform1f(m_UniformTimeID, gameContext.elapsedTime);
 
 	glm::mat4 Translation = glm::translate(glm::mat4(1.0f), m_Position);
 	glm::mat4 Rotation = glm::mat4(m_Rotation);
 	glm::mat4 Scale = glm::scale(glm::mat4(1.0f), m_Scale);
 	glm::mat4 Model = Translation * Rotation * Scale;
 	glm::mat4 MVP = gameContext.camera->GetViewProjection() * Model;
-	glUniformMatrix4fv(m_MVPID, 1, GL_FALSE, &MVP[0][0]);
+	renderer->SetUniformMatrix4fv(m_MVPID, 1, false, &MVP[0][0]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+	renderer->BindBuffer(Renderer::BufferTarget::ARRAY_BUFFER, m_VBO);
+	renderer->BindBuffer(Renderer::BufferTarget::ELEMENT_ARRAY_BUFFER, m_IBO);
 
-	glDrawElements(GL_TRIANGLES, m_NumIndices, GL_UNSIGNED_INT, (GLuint*)0);
+	renderer->DrawElements(Renderer::Mode::TRIANGLES, m_NumIndices, Renderer::Type::UNSIGNED_INT, (uint*)0);
 
-	glBindVertexArray(0);
+	renderer->BindVertexArray(0);
 }

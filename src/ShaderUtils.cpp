@@ -5,8 +5,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "../include/ShaderUtils.hpp"
-#include "../util/glad/glad.h"
+#include "ShaderUtils.hpp"
+#include "glad/glad.h"
 
 ShaderUtils::ShaderUtils()
 {

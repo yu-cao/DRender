@@ -2,7 +2,7 @@
 // Created by debyecao on 11/24/20.
 //
 
-#include "../include/Colors.hpp"
+#include "Colors.hpp"
 
 const float Color::RED[] = { 1.0f, 0.0f, 0.0f };
 const float Color::GREEN[] = { 0.0f, 1.0f, 0.0f };

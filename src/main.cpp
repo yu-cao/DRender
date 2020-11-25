@@ -1,5 +1,5 @@
 
-#include "../include/TechDemo.hpp"
+#include "TechDemo.hpp"
 
 int main (int argc, char *argv[])
 {

@@ -2,8 +2,8 @@
 // Created by debyecao on 11/24/20.
 //
 
-#ifndef DRENDER_RANDOM_H
-#define DRENDER_RANDOM_H
+#ifndef DRENDER_RANDOM_HPP
+#define DRENDER_RANDOM_HPP
 
 class Random final
 {
@@ -23,4 +23,4 @@ private:
 	Random& operator=(const Random&) = delete;
 };
 
-#endif//DRENDER_RANDOM_H
+#endif//DRENDER_RANDOM_HPP

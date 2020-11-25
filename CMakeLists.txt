@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 # 添加头文件
 set(GLFW_H /usr/local/Cellar/glfw/3.3.2/include)
 set(GLM_H /usr/local/Cellar/glm/0.9.9.8/include)
+set(UTILITY ./util)
+set(INCLUDE ./include)
+set(RES ./resources)
 
-include_directories(${GLFW_H} ${GLM_H})
+include_directories(${GLFW_H} ${GLM_H} ${UTILITY} ${INCLUDE} ${RES})
 
 # 添加目标链接
 set(GLFW_LINK /usr/local/Cellar/glfw/3.3.2/lib/libglfw.3.3.dylib)
@@ -22,12 +25,22 @@ set(SOURCE_FILES
         src/ShaderUtils.cpp
         src/TechDemo.cpp
         util/glad/glad.c
-        util/Random/Random.cpp util/Random/Random.h
+        util/Random/Random.cpp util/Random/Random.hpp
         src/Logger.cpp include/Logger.hpp
         src/Colors.cpp include/Colors.hpp
         src/FreeCamera.cpp include/FreeCamera.hpp
         include/GameContext.hpp
-        include/InputManager.hpp src/InputManager.cpp)
+        include/InputManager.hpp src/InputManager.cpp
+        util/Helpers/Helpers.cpp util/Helpers/Helpers.hpp
+        include/Graphics/Renderer.hpp src/Graphics/Renderer.cpp
+        include/Graphics/GLRenderer.hpp src/Graphics/GLRenderer.cpp
+        include/GLHelpers.hpp
+        include/Scene/BaseScene.hpp src/Scene/BaseScene.cpp
+        include/Scene/SceneManager.hpp src/Scene/SceneManager.cpp
+        include/Scene/TestScene.hpp src/Scene/TestScene.cpp
+        include/Window/Window.hpp src/Window/Window.cpp
+        include/Window/GLFWWindowWrapper.hpp src/Window/GLFWWindowWrapper.cpp
+        )
 add_executable(DRender ${SOURCE_FILES})
 
 if (APPLE)

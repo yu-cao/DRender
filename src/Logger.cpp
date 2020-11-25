@@ -2,7 +2,7 @@
 // Created by debyecao on 11/24/20.
 //
 
-#include "../include/Logger.hpp"
+#include "Logger.hpp"
 #include <iostream>
 
 void Logger::Log(const std::string &message, LogLevel logLevel)

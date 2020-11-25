@@ -5,7 +5,7 @@
 #ifndef DRENDER_SHADERUTILS_HPP
 #define DRENDER_SHADERUTILS_HPP
 
-#include "../util/glad/glad.h"
+#include "glad/glad.h"
 
 #include <string>
 

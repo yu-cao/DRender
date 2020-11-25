@@ -14,7 +14,7 @@ struct GameContext;
 class FreeCamera
 {
 public:
-	FreeCamera(const GameContext& gameContext, float FOV = 45.0f, float zNear = 0.1f, float zFar = 1000.0f);
+	FreeCamera(GameContext& gameContext, float FOV = 45.0f, float zNear = 0.1f, float zFar = 1000.0f);
 	~FreeCamera();
 
 	void Update(const GameContext& gameContext);
@@ -22,7 +22,6 @@ public:
 	void SetFOV(float FOV);
 	void SetZNear(float zNear);
 	void SetZFar(float zFar);
-	void SetClearColor(glm::vec3 clearColor);
 	glm::mat4 GetViewProjection() const;
 
 	void SetMoveSpeed(float moveSpeed);
@@ -51,10 +50,9 @@ private:
 	glm::vec3 m_Up;
 	glm::vec3 m_Right;
 
-	glm::vec3 m_ClearColor;
-
 	float m_MoveSpeed;
-	float m_MoveSpeedMultiplier;
+	float m_MoveSpeedFastMultiplier;
+	float m_MoveSpeedSlowMultiplier;
 	float m_RotationSpeed;
 };
 

@@ -2,10 +2,10 @@
 // Created by debyecao on 11/24/20.
 //
 
-#include "../include/FreeCamera.hpp"
-#include "../include/GameContext.hpp"
-#include "../include/InputManager.hpp"
-#include "../include/Logger.hpp"
+#include "FreeCamera.hpp"
+#include "GameContext.hpp"
+#include "InputManager.hpp"
+#include "Logger.hpp"
 
 #include <glm/vec2.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,15 +15,17 @@
 
 using namespace glm;
 
-FreeCamera::FreeCamera(const GameContext& gameContext, float FOV, float zNear, float zFar) :
+FreeCamera::FreeCamera(GameContext& gameContext, float FOV, float zNear, float zFar) :
 	m_FOV(FOV), m_ZNear(zNear), m_ZFar(zFar),
 	m_Position(vec3(0.0f)),
 	m_MoveSpeed(10.0f),
-	m_MoveSpeedMultiplier(3.5f),
-	m_RotationSpeed(3.0f),
+	m_MoveSpeedFastMultiplier(3.5f),
+	m_MoveSpeedSlowMultiplier(0.1f),
+	m_RotationSpeed(0.0011f),
 	m_Yaw(0.0f),
 	m_Pitch(0.0f)
 {
+	gameContext.camera = this;
 	RecalculateViewProjection(gameContext);
 }
 
@@ -38,14 +40,16 @@ void FreeCamera::Update(const GameContext& gameContext)
 	{
 		look = gameContext.inputManager->GetMouseMovement();
 		look.y = -look.y;
+
+		m_Yaw += look.x * m_RotationSpeed;
+		m_Pitch += look.y * m_RotationSpeed;
+
+		float pitchLimit = glm::half_pi<float>() - 0.017f;
+		if (m_Pitch > pitchLimit)
+			m_Pitch = pitchLimit;
+		if (m_Pitch < -pitchLimit)
+			m_Pitch = -pitchLimit;
 	}
-
-	m_Yaw += look.x * m_RotationSpeed * gameContext.deltaTime;
-	m_Pitch += look.y * m_RotationSpeed * gameContext.deltaTime;
-
-	float pitchLimit = glm::half_pi<float>() - 0.017f;
-	if (m_Pitch > pitchLimit) m_Pitch = pitchLimit;
-	if (m_Pitch < -pitchLimit) m_Pitch = -pitchLimit;
 
 	m_Forward = {};
 	m_Forward.x = cos(m_Pitch) * cos(m_Yaw);
@@ -87,7 +91,11 @@ void FreeCamera::Update(const GameContext& gameContext)
 	float speedMultiplier = 1.0f;
 	if (gameContext.inputManager->GetKeyDown(GLFW_KEY_LEFT_SHIFT))
 	{
-		speedMultiplier = m_MoveSpeedMultiplier;
+		speedMultiplier = m_MoveSpeedFastMultiplier;
+	}
+	else if(gameContext.inputManager->GetKeyDown(GLFW_KEY_LEFT_CONTROL))
+	{
+		speedMultiplier = m_MoveSpeedSlowMultiplier;
 	}
 
 	Translate(translation * m_MoveSpeed * speedMultiplier * gameContext.deltaTime);
@@ -108,12 +116,6 @@ void FreeCamera::SetZNear(float zNear)
 void FreeCamera::SetZFar(float zFar)
 {
 	m_ZFar = zFar;
-}
-
-void FreeCamera::SetClearColor(glm::vec3 clearColor)
-{
-	m_ClearColor = clearColor;
-	glClearColor(m_ClearColor.x, m_ClearColor.g, m_ClearColor.b, 1.0f);
 }
 
 glm::mat4 FreeCamera::GetViewProjection() const
@@ -155,7 +157,7 @@ void FreeCamera::ResetOrientation()
 // TODO: Measure impact of calling this every frame (optimize? Only call when values change? Only update changed values)
 void FreeCamera::RecalculateViewProjection(const GameContext& gameContext)
 {
-	const vec2 windowSize = gameContext.windowSize;
+	auto windowSize = gameContext.window->GetSize();
 	float aspectRatio = windowSize.x / (float)windowSize.y;
 	mat4 projection = perspective(m_FOV, aspectRatio, m_ZNear, m_ZFar);
 

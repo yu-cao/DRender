@@ -7,8 +7,6 @@
 
 #include <glm/vec2.hpp>
 
-#include <GLFW/glfw3.h>
-
 #include <map>
 
 class InputManager final
@@ -23,9 +21,9 @@ public:
 	int GetKeyDown(int vkCode);
 	bool GetKeyPressed(int vkCode);
 
-	void CursorPosCallback(GLFWwindow* window, double x, double y);
-	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void CursorPosCallback(double x, double y);
+	void MouseButtonCallback(int button, int action, int mods);
+	void KeyCallback(int key, int scancode, int action, int mods);
 
 	glm::vec2 GetMousePosition() const;
 	glm::vec2 GetMouseMovement() const;

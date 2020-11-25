@@ -2,7 +2,7 @@
 // Created by debyecao on 11/24/20.
 //
 
-#include "Random.h"
+#include "Random.hpp"
 
 #include <glm/gtc/random.hpp>
 #include <time.h>

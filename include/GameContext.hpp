@@ -5,17 +5,25 @@
 #ifndef DRENDER_GAMECONTEXT_HPP
 #define DRENDER_GAMECONTEXT_HPP
 
-#include "FreeCamera.hpp"
-#include "InputManager.hpp"
-
 #include <glm/vec2.hpp>
+#include "Window/Window.hpp"
+
+class FreeCamera;
+class InputManager;
+class Renderer;
+class TechDemo;
+class Window;
 
 struct GameContext
 {
-	FreeCamera* camera;
+	Window* window;
 	InputManager* inputManager;
-	glm::vec2 windowSize;
-	bool windowFocused;
+
+	FreeCamera* camera;
+	Renderer* renderer;
+	TechDemo* mainApp;
+
+	glm::uint program;
 	float elapsedTime;
 	float deltaTime;
 };
