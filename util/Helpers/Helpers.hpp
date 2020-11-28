@@ -7,7 +7,7 @@
 
 #include <string>
 
-static class Helpers
+class Helpers
 {
 public:
 	static std::string FloatToString(float f, int precision);

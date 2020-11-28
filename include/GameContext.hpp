@@ -6,7 +6,6 @@
 #define DRENDER_GAMECONTEXT_HPP
 
 #include <glm/vec2.hpp>
-#include "Window/Window.hpp"
 
 class FreeCamera;
 class InputManager;

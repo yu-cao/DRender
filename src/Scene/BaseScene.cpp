@@ -2,10 +2,8 @@
 // Created by debyecao on 11/25/20.
 //
 
-#include "../../include/Scene/BaseScene.hpp"
-#include "../../include/Logger.hpp"
-
-#include <glm/vec3.hpp>
+#include "Scene/BaseScene.hpp"
+#include "Logger.hpp"
 
 using namespace glm;
 
