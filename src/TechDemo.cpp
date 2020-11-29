@@ -3,7 +3,6 @@
 //
 #include "TechDemo.hpp"
 #include "Logger.hpp"
-#include "GameContext.hpp"
 #include "FreeCamera.hpp"
 #include "InputManager.hpp"
 #include "Window/GLFWWindowWrapper.hpp"
@@ -21,8 +20,11 @@ TechDemo::TechDemo()
 
 TechDemo::~TechDemo()
 {
-	delete m_GameContext.camera;
-}
+	delete m_GameContext.inputManager;
+	delete m_DefaultCamera;
+	delete m_SceneManager;
+	delete m_GameContext.renderer;
+	delete m_Window;}
 
 void TechDemo::Initialize()
 {
@@ -39,8 +41,9 @@ void TechDemo::Initialize()
 	TestScene* testScene = new TestScene(m_GameContext);
 	m_SceneManager->AddScene(testScene);
 
-	FreeCamera* defaultCamera = new FreeCamera(m_GameContext);
-	defaultCamera->SetPosition(vec3(-10.0f, 3.0f, -5.0f));
+	m_DefaultCamera = new FreeCamera(m_GameContext);
+	m_DefaultCamera->SetPosition(vec3(-10.0f, 3.0f, -5.0f));
+	m_GameContext.camera = m_DefaultCamera;
 
 	m_GameContext.inputManager = new InputManager();
 }
@@ -49,6 +52,12 @@ void TechDemo::Stop()
 {
 	m_Running = false;
 }
+
+void TechDemo::Destroy()
+{
+	m_SceneManager->Destroy(m_GameContext);
+}
+
 
 void TechDemo::UpdateAndRender()
 {
@@ -79,4 +88,6 @@ void TechDemo::UpdateAndRender()
 
 		m_GameContext.renderer->SwapBuffers(m_GameContext);
 	}
+
+	Destroy();
 }

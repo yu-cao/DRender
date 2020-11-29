@@ -21,7 +21,7 @@ set(SOURCE_FILES
         src/main.cpp
         include/TechDemo.hpp
         include/ShaderUtils.hpp
-        src/Primitives.cpp include/Primitives.hpp
+        include/Vertex.hpp
         src/ShaderUtils.cpp
         src/TechDemo.cpp
         util/glad/glad.c
@@ -40,7 +40,10 @@ set(SOURCE_FILES
         include/Scene/TestScene.hpp src/Scene/TestScene.cpp
         include/Window/Window.hpp src/Window/Window.cpp
         include/Window/GLFWWindowWrapper.hpp src/Window/GLFWWindowWrapper.cpp
+        include/Prefabs/CubePosCol.hpp src/Prefabs/CubePosCol.cpp
+        include/Prefabs/SpherePosCol.hpp src/Prefabs/SpherePosCol.cpp
         )
+
 add_executable(DRender ${SOURCE_FILES})
 
 if (APPLE)

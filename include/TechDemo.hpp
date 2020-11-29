@@ -5,8 +5,8 @@
 #ifndef DRENDER_TECHDEMO_HPP
 #define DRENDER_TECHDEMO_HPP
 
-#include "Primitives.hpp"
 #include "GameContext.hpp"
+#include "Vertex.hpp"
 
 #include "glm/vec2.hpp"
 
@@ -29,11 +29,14 @@ private:
 	Window* m_Window;
 	SceneManager* m_SceneManager;
 	GameContext m_GameContext;
+	FreeCamera* m_DefaultCamera;
 
 	bool m_Running;
 
 	TechDemo(const TechDemo&) = delete;
 	TechDemo& operator=(const TechDemo&) = delete;
+
+	void Destroy();
 };
 
 #endif//DRENDER_TECHDEMO_HPP

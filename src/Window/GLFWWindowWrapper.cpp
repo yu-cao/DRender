@@ -9,9 +9,6 @@
 #include "TechDemo.hpp"
 #include "InputManager.hpp"
 
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
-
 void GLFWErrorCallback(int error, const char* description)
 {
 	Logger::LogError("GL Error: " + std::string(description));

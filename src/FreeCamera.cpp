@@ -79,11 +79,11 @@ void FreeCamera::Update(const GameContext& gameContext)
 	}
 	if (gameContext.inputManager->GetKeyDown(InputManager::KeyCode::KEY_E))
 	{
-		translation -= m_Up;
+		translation += m_Up;
 	}
 	if (gameContext.inputManager->GetKeyDown(InputManager::KeyCode::KEY_Q))
 	{
-		translation += m_Up;
+		translation -= m_Up;
 	}
 
 	float speedMultiplier = 1.0f;
