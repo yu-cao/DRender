@@ -2,6 +2,8 @@
 // Created by debyecao on 11/24/20.
 //
 
+#include "stdafx.hpp"
+
 #include "InputManager.hpp"
 
 #include "GameContext.hpp"

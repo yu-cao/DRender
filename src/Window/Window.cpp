@@ -1,14 +1,16 @@
 //
 // Created by debyecao on 11/25/20.
 //
+#include "stdafx.hpp"
+
 #include "Window/Window.hpp"
-#include "Window/GLFWWindowWrapper.hpp"
+#include "Window/GLWindowWrapper.hpp"
 #include "Helpers/Helpers.hpp"
 #include "Logger.hpp"
 
 using namespace glm;
 
-Window::Window(GameContext& gameContext, std::string title, glm::vec2 size) :
+Window::Window(std::string title, glm::vec2 size, GameContext& gameContext) :
 	m_TitleString(title),
 	m_Size(size),
 	m_ShowFPSInWindowTitle(true),
@@ -41,17 +43,6 @@ tvec2<int> Window::GetSize() const
 	return m_Size;
 }
 
-void Window::SetSize(int width, int height)
-{
-	SetSize(vec2(width, height));
-}
-
-void Window::SetSize(tvec2<int> windowSize)
-{
-	m_Size = windowSize;
-	glViewport(0, 0, windowSize.x, windowSize.y);
-}
-
 bool Window::HasFocus() const
 {
 	return m_HasFocus;
@@ -59,8 +50,17 @@ bool Window::HasFocus() const
 
 GLFWwindow* Window::IsGLFWWindow()
 {
-	GLFWWindowWrapper* subclass = dynamic_cast<GLFWWindowWrapper*>(this);
-	if (subclass) return subclass->GetWindow();
+	GLWindowWrapper* glWindow = dynamic_cast<GLWindowWrapper*>(this);
+	if (glWindow)
+	{
+		return glWindow->GetWindow();
+	}
+
+	VulkanWindowWrapper* vulkanWindow = dynamic_cast<VulkanWindowWrapper*>(this);
+	if (vulkanWindow)
+	{
+		return vulkanWindow->GetWindow();
+	}
 	return nullptr;
 }
 
@@ -106,7 +106,7 @@ void Window::MouseButtonCallback(InputManager::MouseButton mouseButton, InputMan
 
 void Window::WindowFocusCallback(int focused)
 {
-	m_HasFocus = focused;
+	m_HasFocus = focused != 0;
 }
 
 void Window::CursorPosCallback(double x, double y)

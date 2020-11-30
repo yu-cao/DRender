@@ -8,6 +8,8 @@
 #include "Vertex.hpp"
 #include <vector>
 
+struct GameContext;
+
 struct SpherePosCol
 {
 	SpherePosCol();

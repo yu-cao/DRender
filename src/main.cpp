@@ -1,3 +1,5 @@
+#include "stdafx.hpp"
+
 #include "TechDemo.hpp"
 
 int main (int argc, char *argv[])

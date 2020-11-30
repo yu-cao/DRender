@@ -7,9 +7,6 @@
 
 #include "Renderer.hpp"
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
 struct GameContext;
 
 class GLRenderer : public Renderer
@@ -21,8 +18,7 @@ public:
 	virtual glm::uint Initialize(const GameContext& gameContext, std::vector<VertexPosCol>* vertices) override;
 	virtual glm::uint Initialize(const GameContext& gameContext, std::vector<VertexPosCol>* vertices, std::vector<glm::uint>* index) override;
 
-	virtual void Draw(glm::uint renderID) override;
-
+	virtual void Draw(const GameContext& gameContext, glm::uint renderID) override;
 
 	virtual void SetVSyncEnabled(bool enableVSync) override;
 	virtual void Clear(int flags) override;
@@ -39,27 +35,27 @@ public:
 	virtual void Destroy(glm::uint renderID) override;
 
 private:
-	static GLuint BufferTargetToGLTarget(BufferTarget bufferTarget);
-	static GLenum TypeToGLType(Type type);
-	static GLenum UsageFlagToGLUsageFlag(UsageFlag usage);
-	static GLenum ModeToGLMode(Mode mode);
+	static glm::uint BufferTargetToGLTarget(BufferTarget bufferTarget);
+	static glm::uint TypeToGLType(Type type);
+	static glm::uint UsageFlagToGLUsageFlag(UsageFlag usage);
+	static glm::uint ModeToGLMode(Mode mode);
 
 	struct RenderObject
 	{
-		GLuint renderID;
+		glm::uint renderID;
 
-		GLuint VAO;
-		GLuint VBO;
-		GLuint IBO;
+		glm::uint VAO;
+		glm::uint VBO;
+		glm::uint IBO;
 
-		GLuint vertexBuffer;
+		glm::uint vertexBuffer;
 		std::vector<VertexPosCol>* vertices = nullptr;
 
 		bool indexed;
-		GLuint indexBuffer;
+		glm::uint indexBuffer;
 		std::vector<glm::uint>* indices = nullptr;
 
-		GLuint MVP;
+		glm::uint MVP;
 	};
 
 	RenderObject* GetRenderObject(int renderID);
@@ -67,7 +63,7 @@ private:
 	std::vector<RenderObject*> m_RenderObjects;
 
 	bool m_VSyncEnabled;
-	GLuint m_Program;
+	glm::uint m_Program;
 
 	GLRenderer(const GLRenderer&) = delete;
 	GLRenderer& operator=(const GLRenderer&) = delete;

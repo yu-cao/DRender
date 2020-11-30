@@ -1,10 +1,13 @@
 //
 // Created by debyecao on 11/29/20.
 //
+#include "stdafx.hpp"
+
 #include "Prefabs/SpherePosCol.hpp"
-#include "Graphics/Renderer.hpp"
-#include "FreeCamera.hpp"
+
 #include "GameContext.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Colors.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
@@ -132,5 +135,5 @@ void SpherePosCol::Render(const GameContext& gameContext)
 	glm::mat4 model = translation * rotation * scale;
 	renderer->UpdateTransformMatrix(gameContext, m_RenderID, model);
 
-	renderer->Draw(m_RenderID);
+	renderer->Draw(gameContext, m_RenderID);
 }

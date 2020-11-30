@@ -6,8 +6,7 @@
 #define DRENDER_RENDERER_HPP
 
 #include <Vertex.hpp>
-#include <glm/detail/type_float.hpp>
-#include <glm/mat4x4.hpp>
+
 #include <vector>
 
 class GameContext;
@@ -57,14 +56,15 @@ public:
 		LINE_STRIP,
 		TRIANGLES,
 		TRIANGLE_STRIP,
-		TRIANGLE_FAN,
-		QUADS
+		TRIANGLE_FAN
 	};
+
+	virtual void PostInitialize() = 0;
 
 	virtual glm::uint Initialize(const GameContext& gameContext, std::vector<VertexPosCol>* vertices) = 0;
 	virtual glm::uint Initialize(const GameContext& gameContext, std::vector<VertexPosCol>* vertices, std::vector<glm::uint>* index) = 0;
 
-	virtual void Draw(glm::uint renderID) = 0;
+	virtual void Draw(const GameContext& gameContext, glm::uint renderID) = 0;
 
 	virtual void SetVSyncEnabled(bool enableVSync) = 0;
 	virtual void Clear(int flags) = 0;

@@ -1,15 +1,13 @@
 //
 // Created by debyecao on 11/25/20.
 //
+#include "stdafx.hpp"
 
 #include "Graphics/GLRenderer.hpp"
 #include "GameContext.hpp"
 #include "FreeCamera.hpp"
 #include "Window/Window.hpp"
 #include "Logger.hpp"
-
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
 
 using namespace glm;
 
@@ -49,7 +47,7 @@ GLRenderer::~GLRenderer()
 	glfwTerminate();
 }
 
-glm::uint GLRenderer::Initialize(const GameContext &gameContext, std::vector<VertexPosCol>* vertices)
+uint GLRenderer::Initialize(const GameContext &gameContext, std::vector<VertexPosCol>* vertices)
 {
 	const uint renderID = m_RenderObjects.size();
 	RenderObject* object = new RenderObject();
@@ -77,7 +75,7 @@ glm::uint GLRenderer::Initialize(const GameContext &gameContext, std::vector<Ver
 	return renderID;
 }
 
-glm::uint GLRenderer::Initialize(const GameContext &gameContext, std::vector<VertexPosCol> *vertices, std::vector<glm::uint> *indices)
+uint GLRenderer::Initialize(const GameContext &gameContext, std::vector<VertexPosCol> *vertices, std::vector<uint> *indices)
 {
 	const uint renderID = Initialize(gameContext, vertices);
 
@@ -93,7 +91,7 @@ glm::uint GLRenderer::Initialize(const GameContext &gameContext, std::vector<Ver
 	return renderID;
 }
 
-void GLRenderer::Draw(glm::uint renderID)
+void GLRenderer::Draw(const GameContext& gameContext, uint renderID)
 {
 	RenderObject* renderObject = GetRenderObject(renderID);
 
@@ -132,7 +130,7 @@ void GLRenderer::SwapBuffers(const GameContext& gameContext)
 	glfwSwapBuffers(gameContext.window->IsGLFWWindow());
 }
 
-void GLRenderer::UpdateTransformMatrix(const GameContext& gameContext, glm::uint renderID, const glm::mat4x4& model)
+void GLRenderer::UpdateTransformMatrix(const GameContext& gameContext, uint renderID, const glm::mat4x4& model)
 {
 	RenderObject* renderObject = GetRenderObject(renderID);
 
@@ -140,17 +138,17 @@ void GLRenderer::UpdateTransformMatrix(const GameContext& gameContext, glm::uint
 	glUniformMatrix4fv(renderObject->MVP, 1, false, &MVP[0][0]);
 }
 
-int GLRenderer::GetShaderUniformLocation(glm::uint program, const std::string uniformName)
+int GLRenderer::GetShaderUniformLocation(uint program, const std::string uniformName)
 {
 	return glGetUniformLocation(program, uniformName.c_str());
 }
 
-void GLRenderer::SetUniform1f(glm::uint location, float val)
+void GLRenderer::SetUniform1f(uint location, float val)
 {
 	glUniform1f(location, val);
 }
 
-void GLRenderer::DescribeShaderVariable(glm::uint renderID, glm::uint program, const std::string& variableName, int size, Renderer::Type renderType, bool normalized, int stride, void* pointer)
+void GLRenderer::DescribeShaderVariable(uint renderID, glm::uint program, const std::string& variableName, int size, Renderer::Type renderType, bool normalized, int stride, void* pointer)
 {
 	RenderObject* renderObject = GetRenderObject(renderID);
 
@@ -164,14 +162,15 @@ void GLRenderer::DescribeShaderVariable(glm::uint renderID, glm::uint program, c
 	glBindVertexArray(0);
 }
 
-void GLRenderer::Destroy(glm::uint renderID)
+void GLRenderer::Destroy(uint renderID)
 {
 	for (auto iter = m_RenderObjects.begin(); iter != m_RenderObjects.end(); ++iter)
 	{
 		if ((*iter)->renderID == renderID)
 		{
+			RenderObject* obj = *iter;
 			m_RenderObjects.erase(iter);
-			return;
+			delete obj;
 		}
 	}
 }
@@ -226,7 +225,6 @@ GLenum GLRenderer::ModeToGLMode(Mode mode)
 	else if (mode == Mode::TRIANGLES) glMode = GL_TRIANGLES;
 	else if (mode == Mode::TRIANGLE_STRIP) glMode = GL_TRIANGLE_STRIP;
 	else if (mode == Mode::TRIANGLE_FAN) glMode = GL_TRIANGLE_FAN;
-	else if (mode == Mode::QUADS) glMode = GL_QUADS;
 	else Logger::LogError("Unhandled Mode passed to GLRenderer: " + std::to_string((int)mode));
 
 	return glMode;

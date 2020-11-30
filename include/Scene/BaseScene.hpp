@@ -5,10 +5,10 @@
 #ifndef DRENDER_BASESCENE_HPP
 #define DRENDER_BASESCENE_HPP
 
-#include <string>
-
 #include "FreeCamera.hpp"
 #include "GameContext.hpp"
+
+#include <string>
 
 class BaseScene
 {

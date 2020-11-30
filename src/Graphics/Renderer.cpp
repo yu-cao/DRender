@@ -1,6 +1,7 @@
 //
 // Created by debyecao on 11/25/20.
 //
+#include "stdafx.hpp"
 
 #include "Graphics/Renderer.hpp"
 #include "GameContext.hpp"

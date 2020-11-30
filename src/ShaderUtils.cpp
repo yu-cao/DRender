@@ -1,6 +1,7 @@
 //
 // Created by debyecao on 11/24/20.
 //
+#include "stdafx.hpp"
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -17,13 +18,13 @@ ShaderUtils::~ShaderUtils()
 {
 }
 
-GLuint ShaderUtils::LoadShader(std::string filepath, ShaderType type)
+size_t ShaderUtils::LoadShader(std::string filepath, ShaderType type)
 {
 	// TODO: Load one shader and use default for other
 	return (GLuint)0;
 }
 
-GLuint ShaderUtils::LoadShaders(std::string vertex, std::string fragment)
+size_t ShaderUtils::LoadShaders(std::string vertex, std::string fragment)
 {
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);

@@ -1,6 +1,7 @@
 //
 // Created by debyecao on 11/24/20.
 //
+#include "stdafx.hpp"
 
 #include "FreeCamera.hpp"
 #include "GameContext.hpp"
@@ -9,7 +10,6 @@
 
 #include <glm/vec2.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
 
 using namespace glm;
 

@@ -7,6 +7,7 @@
 
 #include "GameContext.hpp"
 #include "InputManager.hpp"
+
 #include <string>
 
 struct GLFWwindow;
@@ -21,15 +22,14 @@ public:
 		DISABLED
 	};
 
-	Window(GameContext& gameContext, std::string title, glm::vec2 size);
+	Window(std::string title, glm::vec2 size, GameContext& gameContext);
 	virtual ~Window();
 
 	virtual void Update(const GameContext& gameContext);
 	virtual void PollEvents() = 0;
 
 	glm::tvec2<int> GetSize() const;
-	void SetSize(int width, int height);
-	void SetSize(glm::tvec2<int> windowSize);
+	virtual void SetSize(int width, int height) = 0;
 	bool HasFocus() const;
 
 	void SetTitleString(std::string title);
@@ -44,11 +44,11 @@ public:
 
 protected:
 	// Callbacks
-	void KeyCallback(InputManager::KeyCode keycode, int scancode, InputManager::Action action, int mods);
-	void MouseButtonCallback(InputManager::MouseButton mouseButton, InputManager::Action action, int mods);
-	void WindowFocusCallback(int focused);
-	void CursorPosCallback(double x, double y);
-	void WindowSizeCallback(int width, int height);
+	virtual void KeyCallback(InputManager::KeyCode keycode, int scancode, InputManager::Action action, int mods);
+	virtual void MouseButtonCallback(InputManager::MouseButton mouseButton, InputManager::Action action, int mods);
+	virtual void WindowFocusCallback(int focused);
+	virtual void CursorPosCallback(double x, double y);
+	virtual void WindowSizeCallback(int width, int height);
 
 	friend void GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods);
 	friend void GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);

@@ -1,16 +1,26 @@
 //
 // Created by debyecao on 11/24/20.
 //
+#include "stdafx.hpp"
+
 #include "TechDemo.hpp"
-#include "Logger.hpp"
 #include "FreeCamera.hpp"
 #include "InputManager.hpp"
-#include "Window/GLFWWindowWrapper.hpp"
-#include "Graphics/GLRenderer.hpp"
 #include "Scene/SceneManager.hpp"
 #include "Scene/TestScene.hpp"
 
-#include <glm/glm.hpp> // vec3, vec3, mat4
+// Ensure more than one API isn't defined
+#if COMPILE_VULKAN
+#if COMPILE_OPEN_GL
+assert(false);
+#endif
+#endif
+
+#if COMPILE_OPEN_GL
+#if COMPILE_VULKAN
+assert(false);
+#endif
+#endif
 
 using namespace glm;
 
@@ -23,18 +33,25 @@ TechDemo::~TechDemo()
 	delete m_GameContext.inputManager;
 	delete m_DefaultCamera;
 	delete m_SceneManager;
+	delete m_Window;
 	delete m_GameContext.renderer;
-	delete m_Window;}
+}
 
 void TechDemo::Initialize()
 {
 	m_GameContext = {};
 	m_GameContext.mainApp = this;
 
-	m_Window = new GLFWWindowWrapper("Tech Demo", vec2(1920, 1080), m_GameContext);
+#if COMPILE_VULKAN
+	m_Window = new VulkanWindowWrapper("Vulkan Demo", vec2(1920, 1080), m_GameContext);
+	VulkanRenderer* renderer = new VulkanRenderer(m_GameContext);
+#elif COMPILE_OPEN_GL
+	m_Window = new GLWindowWrapper("Tech Demo", vec2(1920, 1080), m_GameContext);
+	GLRenderer* renderer = new GLRenderer(m_GameContext);
+#endif
+
 	m_Window->SetUpdateWindowTitleFrequency(0.4f);
 
-	GLRenderer* renderer = new GLRenderer(m_GameContext);
 	m_GameContext.renderer->SetVSyncEnabled(true);
 
 	m_SceneManager = new SceneManager();
@@ -46,6 +63,8 @@ void TechDemo::Initialize()
 	m_GameContext.camera = m_DefaultCamera;
 
 	m_GameContext.inputManager = new InputManager();
+
+	renderer->PostInitialize();
 }
 
 void TechDemo::Stop()

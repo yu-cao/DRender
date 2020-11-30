@@ -5,6 +5,7 @@
 #ifndef DRENDER_LOGGER_HPP
 #define DRENDER_LOGGER_HPP
 
+#include "stdafx.hpp"
 #include <string>
 
 class Logger

@@ -6,7 +6,9 @@
 #define DRENDER_SCENEMANAGER_HPP
 
 #include <vector>
-#include "BaseScene.hpp"
+
+class BaseScene;
+struct GameContext;
 
 class SceneManager
 {

@@ -1,15 +1,16 @@
 //
 // Created by debyecao on 11/29/20.
 //
-
+#include "stdafx.hpp"
 
 #include "Prefabs/CubePosCol.hpp"
 
 #include "GameContext.hpp"
 #include "Graphics/Renderer.hpp"
-#include "FreeCamera.hpp"
+#include "Colors.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 #include <string>
 
 using namespace glm;
@@ -89,6 +90,8 @@ void CubePosCol::Init(const GameContext& gameContext, glm::vec3 position, glm::q
 			{ -1.0f, -1.0f,  1.0f, 	colours[5] },
 		};
 
+	std::for_each(m_Vertices.begin(), m_Vertices.end(), [](VertexPosCol& vert) { vert.pos[0] *= 0.5f; vert.pos[1] *= 0.5f; vert.pos[2] *= 0.5f; });
+
 	m_RenderID = renderer->Initialize(gameContext, &m_Vertices);
 
 	renderer->DescribeShaderVariable(m_RenderID, gameContext.program, "in_Color", 3, Renderer::Type::FLOAT, false, VertexPosCol::stride,
@@ -114,5 +117,5 @@ void CubePosCol::Render(const GameContext& gameContext)
 	glm::mat4 model = translation * rotation * scale;
 	renderer->UpdateTransformMatrix(gameContext, m_RenderID, model);
 
-	renderer->Draw(m_RenderID);
+	renderer->Draw(gameContext, m_RenderID);
 }

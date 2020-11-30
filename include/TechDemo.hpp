@@ -6,13 +6,11 @@
 #define DRENDER_TECHDEMO_HPP
 
 #include "GameContext.hpp"
-#include "Vertex.hpp"
-
-#include "glm/vec2.hpp"
 
 class FreeCamera;
 class InputManager;
 class SceneManager;
+class Window;
 
 class TechDemo final
 {
@@ -21,7 +19,6 @@ public:
 	~TechDemo();
 
 	void Initialize();
-
 	void UpdateAndRender();
 	void Stop();
 

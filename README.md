@@ -21,5 +21,13 @@ glm - Math operations
 
 安装SOIL：
 
-从GitHub[下载](https://github.com/kbranigan/Simple-OpenGL-Image-Library)，然后进行make，得到一个静态链接库，再把`soil.h`拉入工程之中正常引用即可，编译时，Mac下如果出现bug，可以尝试将Cocoa framework加入其中即可解决
+从GitHub[下载](https://github.com/kbranigan/Simple-OpenGL-Image-Library) ，然后进行make，得到一个静态链接库，再把`soil.h`拉入工程之中正常引用即可，编译时，Mac下如果出现bug，可以尝试将Cocoa framework加入其中即可解决
 
+安装vulkan（未完成，TODO）:
+
+```bash
+brew install vulkan-header
+brew cask install apenngrace/vulkan/vulkan-sdk
+```
+
+再从下载的里面查看版本号，在`CMakeList.txt`中修改成对应的目录即可

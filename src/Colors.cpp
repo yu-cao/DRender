@@ -2,6 +2,7 @@
 // Created by debyecao on 11/24/20.
 //
 
+#include "stdafx.hpp"
 #include "Colors.hpp"
 
 const float Color::RED[] = { 1.0f, 0.0f, 0.0f };

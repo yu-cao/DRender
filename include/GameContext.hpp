@@ -15,8 +15,8 @@ class Window;
 
 struct GameContext
 {
-	Window* window;
 	InputManager* inputManager;
+	Window* window;
 
 	FreeCamera* camera;
 	Renderer* renderer;
